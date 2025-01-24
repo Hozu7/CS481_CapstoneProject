@@ -1,0 +1,91 @@
+﻿@page "/"
+@inject ILogger<Tickets> Logger
+
+<PageTitle>Tickets</PageTitle>
+
+<h1>Create tickets and view previous tickets</h1>
+
+
+<EditForm id="TicketForm" EditContext="editContext" OnValidSubmit="Submit" FormName="CreateTicket">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>
+            Role:
+            <InputText @bind-Value="ticket!.role" />
+        </label>
+    </div>
+    <div>
+        <label>
+            Description:
+            <InputText @bind-Value="ticket!.description" />
+        </label>
+    </div>
+    <div>
+        <button type="submit">Create Ticket</button>
+    </div>
+</EditForm>
+
+
+@* <button class="btn btn-primary" @onclick="createTicket">Create New Ticket</button> *@
+
+@if (tickets == null)
+{
+    <p><em>Loading Tickets ...</em></p>
+}
+else if (tickets.Length == 0) {
+    <p><em>No tickets found</em></p>
+}
+else 
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Role</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in tickets)
+            {
+                <tr>
+                    <td>@ticket.id</td>
+                    <td>@ticket.role</td>
+                    <td>@ticket.priority</td>
+                    <td>@ticket.status</td>
+                    <td>@ticket.description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private EditContext? editContext;
+
+    [SupplyParameterFromForm]
+    private Ticket? ticket { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ticket = new();
+        editContext = new(ticket);
+    }
+        
+
+    private Ticket[] tickets = {};
+
+    private void Submit() {
+        Console.WriteLine("Submitted Successfully");
+        Logger.LogInformation("id = {id} role = {role} " +
+            "priority = {priority} status = {status} " +
+            "description = {description}", ticket?.id, ticket?.role, ticket?.priority,
+            ticket?.status, ticket?.description);
+        tickets = tickets.Append<Ticket>(ticket).ToArray();
+        ticket = new();
+    }
+}

@@ -1,0 +1,86 @@
+﻿@page "/GeneralChat"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Event Planner App Chat</PageTitle>
+
+<h1>General Chat</h1>
+
+@code {
+    private string UserInput { get; set; } = "";
+    private List<(string Message, bool IsUser)> Messages { get; set; } = new();
+
+    private void SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(UserInput))
+        {
+            Messages.Add((UserInput, true)); // User's message
+            UserInput = ""; // Clear input
+            StateHasChanged();
+        }
+    }
+}
+
+<h3>Chat</h3>
+
+<div class="chat-box">
+    @foreach (var (message, isUser) in Messages)
+    {
+        <div class="@($"message { (isUser ? "user-message" : "bot-message") }")">
+            @message
+        </div>
+    }
+</div>
+
+<div class="chat-input">
+    <input type="text" class="form-control" @bind="UserInput" placeholder="Type a message..."
+           @onkeydown="@(e => { if (e.Key == "Enter") { SendMessage(); } })" />
+    <button class="btn btn-primary" @onclick="SendMessage">Send</button>
+</div>
+
+<style>
+    .chat-box {
+        width: 100%;
+        max-width: ;
+        height: 300px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .message {
+        max-width: 70%;
+        padding: 8px 12px;
+        border-radius: 18px;
+        margin: 5px;
+        word-wrap: break-word;
+    }
+
+    .user-message {
+        align-self: flex-end;
+        background-color: #007bff;
+        color: white;
+    }
+
+    .bot-message {
+        align-self: flex-start;
+        background-color: #f1f1f1;
+    }
+
+    .chat-input {
+        display: flex;
+        margin-top: 10px;
+        gap: 10px;
+    }
+
+        .chat-input input {
+            flex: 1;
+        }
+</style>
+
+
+
+

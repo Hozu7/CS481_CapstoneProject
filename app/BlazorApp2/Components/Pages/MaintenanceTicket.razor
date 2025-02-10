@@ -1,0 +1,59 @@
+﻿@page "/MaintenanceTicket"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+<!-- below: authenticate user to access this page -->
+@attribute [Authorize]
+
+<PageTitle>Maintenance Ticket</PageTitle>
+
+@*navlink to go back a page*@
+<NavLink class="btn btn-primary" href="/NewTicketHome">Back</NavLink>
+
+<h1>Maintenance Ticket</h1>
+
+@code {
+    @*Ticket Information*@
+    private string CategorySelection { get; set; } = "";
+    private string Description { get; set; } = "";
+    private string SeveritySelection { get; set; } = "";
+    private DateTime? ClickTime { get; set; }
+
+    @*Function used to get time submit was clicked*@
+    private void CaptureTime()
+    {
+        ClickTime = DateTime.Now;
+    }
+}
+
+@*Category dropdown selector*@
+<h3>Category:</h3>
+<select class="form-select" @bind="CategorySelection">
+    <option value="Trash">Trash</option>
+    <option value="Cleanup">Cleanup</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Other (Specify in Description)">Other</option>
+</select>
+
+@*Severity dropdown selector*@
+<h3>Severity:</h3>
+<select class="form-select" @bind="SeveritySelection">
+    <option value="1 - Not Urgent">1 - Not Urgent</option>
+    <option value="2">2</option>
+    <option value="3 - Needs Attention">3 - Needs Attention</option>
+    <option value="4">4</option>
+    <option value="5 - URGENT">5 - URGENT</option>
+</select>
+
+@*Description*@
+<h3>Description:</h3>
+<input type="text" class="form-control" @bind="Description" />
+
+
+@*Button for submitting tickets, no implementation currently*@
+<p></p>
+<button class="btn btn-primary" @onclick="CaptureTime">Submit Ticket</button>
+
+@if (ClickTime != null)
+{
+    <p>Button clicked at: @ClickTime</p>
+}

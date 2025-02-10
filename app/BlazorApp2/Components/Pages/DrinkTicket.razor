@@ -1,0 +1,53 @@
+﻿@page "/DrinkTicket"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+<!-- below: authenticate user to access this page -->
+@attribute [Authorize]
+
+<PageTitle>Drink Ticket</PageTitle>
+
+@*navlink to go back a page*@
+<NavLink class="btn btn-primary" href="/NewTicketHome">Back</NavLink>
+
+<h1>Drink Ticket</h1>
+
+@code {
+    @*Ticket Information*@
+    private string CategorySelection { get; set; } = "";
+    private string Description { get; set; } = "";
+    private string DrinkSelection { get; set; } = "";
+    private string Location { get; set; } = "";
+    private DateTime? ClickTime { get; set; }
+
+    @*Function used to get time submit was clicked*@
+    private void CaptureTime()
+    {
+        ClickTime = DateTime.Now;
+    }
+}
+
+
+@*Severity dropdown selector*@
+<h3>Drink Selection:</h3>
+<select class="form-select" @bind="DrinkSelection">
+    <option value="Diet Coke">Diet Coke</option>
+    <option value="Coke">Coke</option>
+    <option value="Sprite">Sprite</option>
+    <option value="Water">Water</option>
+    <option value="Other">Other (specify in despcription)</option>
+</select>
+
+@*Description*@
+<h3>Additional Details:</h3>
+<input type="text" class="form-control" @bind="Description" />
+
+@*Room/Location*@
+<h3>Location (Room):</h3>
+<input type="text" class="form-control" @bind="Location" />
+
+@*Button for submitting tickets, no implementation currently*@
+<p></p><button class="btn btn-primary" @onclick="CaptureTime">Submit Ticket</button>
+
+@if (ClickTime != null) {
+    <p>Button clicked at: @ClickTime</p>
+}

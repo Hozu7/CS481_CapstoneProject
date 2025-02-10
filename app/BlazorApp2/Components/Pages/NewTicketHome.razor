@@ -1,0 +1,18 @@
+﻿@page "/NewTicketHome"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+<!-- below: authenticate user to access this page -->
+@attribute [Authorize]
+
+<PageTitle>Event Planner App</PageTitle>
+
+<h1>New Ticket</h1>
+<p>Create a Ticket</p>
+
+
+
+<NavLink class="btn btn-primary" href="/FoodTicket">Food</NavLink>
+<NavLink class="btn btn-primary" href="/DrinkTicket">Drinks</NavLink>
+<NavLink class="btn btn-primary" href="/MaintenanceTicket">Maintenance</NavLink>
+<NavLink class="btn btn-primary" href="/OtherTicket">Other</NavLink>
+

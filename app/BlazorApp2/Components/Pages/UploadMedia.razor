@@ -1,0 +1,78 @@
+﻿@page "/UploadMedia"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IConfiguration config
+
+<PageTitle>Event Planner App</PageTitle>
+
+<h1>Upload Event Related Media</h1>
+<p>File limit is set to 3MB currently</p>
+
+<InputFile OnChange="@LoadFiles" multiple />
+
+@*puts errors in a list and display*@
+@if (errors.Count > 0) {
+    <h2>Errors</h2>
+    <ul class=" = text-danger">
+        @foreach (var error in errors) {
+            <li>@error</li>
+        }
+    </ul>
+}
+
+@code {
+    private DateTime? ClickTime { get; set; }
+
+    // Function used to get time submit was clicked
+    private void CaptureTime()
+    {
+        ClickTime = DateTime.Now;
+    }
+
+    // specification for file upload
+    private long maxFileSize = 1024 * 1024 * 3;
+    // this is 3mb
+    private int maxAllowedFiles = 3;
+    private List<string> errors = new();
+
+    private async Task LoadFiles(InputFileChangeEventArgs e) {
+        errors.Clear();
+        //file error too many files
+        if (e.FileCount > maxAllowedFiles) {
+            errors.Add($"Error: Attempting to upload {e.FileCount} FileServerExtensions, but only {maxAllowedFiles} files are allowed");
+            return;
+        }
+
+        // get file passed and rename it randomly, keeping the extension
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles)) {
+            try {
+                string newFileName = Path.ChangeExtension(
+                Path.GetRandomFileName(),
+                Path.GetExtension(file.Name));
+
+                // capture path to store files, put username in the "nameOfUser" spot
+                string path = Path.Combine(config.GetValue<string>("FileStorage")!, "nameOfUser", newFileName);
+
+                // creates folder for user submission
+                Directory.CreateDirectory(Path.Combine(config.GetValue<string>("FileStorage")!, "nameOfUser")); // could cause issues with permission when pushed outside of dev build
+
+                //create filestream to be saved in file
+                await using FileStream fs = new(path, FileMode.Create);
+                await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+            }
+            catch (Exception ex) {
+                errors.Add($"File: {file.Name} Error: {ex.Message}"); // using file.Name currently is not cleaned data and could result in a malicious attack
+            }
+        }
+    }
+
+}
+
+@*Button for submitting tickets, no implementation currently*@
+<p></p>
+<button class="btn btn-primary" @onclick="CaptureTime">Submit File</button>
+
+@if (ClickTime != null)
+{
+    <p>Button clicked at: @ClickTime</p>
+}

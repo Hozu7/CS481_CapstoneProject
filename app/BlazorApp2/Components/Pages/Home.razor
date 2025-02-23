@@ -1,16 +1,35 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using EventConnect
+@using System.Security.Claims;
+@inject ProtectedSessionStorage ProtectedSessionStore
+@inject AuthenticationStateProvider AuthStateProvider
 <!-- below: authenticate user to access this page -->
 @attribute [Authorize]
+
 
 <PageTitle>Event Planner App</PageTitle>
 
 <h1>Welcome to the Event Planner App</h1>
 <p>Navigation is on the sidebar currently</p>
 <p>This will be changed to accommodate phone users better, and will likely have button navigation on this page</p>
+<p>User ID: @userId</p>
 
 
+@code {
+    private AuthenticationState authState;
+    public string userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        userId = authState.User.Claims.FirstOrDefault(x => x.Type.Equals("cognito:username"))?.Value;
+    }
+    
+}
 
 
 

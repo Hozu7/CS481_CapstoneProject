@@ -4,8 +4,15 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using Blazorise;
+using Blazorise.Bootstrap5;
+using Blazorise.Icons.FontAwesome;
+using System.Data;
+using System.Security.Claims;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +25,14 @@ builder.Services.AddScoped<WeatherService>();
 
 // Register LogoutService
 builder.Services.AddScoped<LogoutService>();
+
+builder.Services
+    .AddBlazorise(options =>
+    {
+        options.Immediate = true;
+    })
+    .AddBootstrap5Providers()
+    .AddFontAwesomeIcons();
 
 // Configure an authenticated HTTP client in program.cs
 builder.Services.AddHttpClient("AuthenticatedClient",
@@ -43,9 +58,21 @@ builder.Services.AddAuthentication(options =>
     options.ResponseType = OpenIdConnectResponseType.Code; // Use authorization code flow
     options.SaveTokens = true;
     options.UseTokenLifetime = true;
+    options.GetClaimsFromUserInfoEndpoint = true;
 
     options.Events = new OpenIdConnectEvents
     {
+        OnUserInformationReceived = (context) =>
+        {
+            var principal = context.Principal;
+            var accessToken = context.ProtocolMessage.AccessToken;
+            var claim = new ClaimsIdentity();
+            var userId = principal.Claims.FirstOrDefault(x => x.Type.Equals("cognito:username"))?.Value;
+            claim.AddClaim(new Claim("user_id", userId));
+            principal.AddIdentity(claim);
+
+            return Task.CompletedTask;
+        },
         OnRedirectToIdentityProviderForSignOut = (context) =>
         {
             var clientId = builder.Configuration["Cognito:ClientId"];
